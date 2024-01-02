@@ -31,6 +31,11 @@
             <artifactId>keycloak-core</artifactId>
             <version>22.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <version>3.1.0</version>
+        </dependency>
     </dependencies>
 
 </project>
