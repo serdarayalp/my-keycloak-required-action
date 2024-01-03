@@ -2,7 +2,6 @@ package de.mydomain.keycloak;
 
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
-import org.keycloak.authentication.InitiatedActionSupport;
 import org.keycloak.authentication.RequiredActionContext;
 import org.keycloak.authentication.RequiredActionProvider;
 import org.keycloak.forms.login.LoginFormsProvider;
@@ -30,22 +29,26 @@ public class MobileNumberRequiredAction implements RequiredActionProvider {
     }
 
     @Override
-    public void requiredActionChallenge(RequiredActionContext context) {
-        context.challenge(createForm(context, null));
+    public void requiredActionChallenge(RequiredActionContext requiredActionContext) {
+        requiredActionContext.challenge(createForm(requiredActionContext, null));
     }
 
-    private Response createForm(RequiredActionContext context, Consumer<LoginFormsProvider> formConsumer) {
-        LoginFormsProvider form = context.form();
-        form.setAttribute("username", context.getUser().getUsername());
+    private Response createForm(RequiredActionContext requiredActionContext, Consumer<LoginFormsProvider> formConsumer) {
 
-        String mobileNumber = context.getUser().getFirstAttribute(MOBILE_NUMBER_FIELD);
-        form.setAttribute(MOBILE_NUMBER_FIELD, mobileNumber == null ? "" : mobileNumber);
+        LoginFormsProvider loginFormsProvider = requiredActionContext.form();
+
+        // für die Ausgabe des Usernames im Formular, z.B. "Hallo Maxmustermann"
+        loginFormsProvider.setAttribute("username", requiredActionContext.getUser().getUsername());
+
+        // Wenn die User schon eine Telefonnummer hat, dann sie auch in der Maske entsprechend ausgeben
+        String mobileNumber = requiredActionContext.getUser().getFirstAttribute(MOBILE_NUMBER_FIELD);
+        loginFormsProvider.setAttribute(MOBILE_NUMBER_FIELD, mobileNumber == null ? "" : mobileNumber);
 
         if (formConsumer != null) {
-            formConsumer.accept(form);
+            formConsumer.accept(loginFormsProvider);
         }
 
-        return form.createForm("my_required_action_template.ftl");
+        return loginFormsProvider.createForm("my_required_action_template.ftl");
     }
 
     @Override
