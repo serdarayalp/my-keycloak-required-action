@@ -13,5 +13,4 @@ services:
     command:
       - start-dev
     volumes:
-      - ./deployments:/opt/keycloak/standalone/deployments
-      - ./my-keycloak-theme:/opt/keycloak/themes/my-keycloak-theme
+      - ./deployments:/opt/keycloak/providers

@@ -6,6 +6,7 @@ import org.keycloak.authentication.InitiatedActionSupport;
 import org.keycloak.authentication.RequiredActionContext;
 import org.keycloak.authentication.RequiredActionProvider;
 import org.keycloak.forms.login.LoginFormsProvider;
+import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.UserModel;
 
 import java.util.function.Consumer;
@@ -13,34 +14,44 @@ import java.util.function.Consumer;
 
 public class MobileNumberRequiredAction implements RequiredActionProvider {
 
-    public static final String PROVIDER_ID = "mobile-number-ra";
+    public static final String PROVIDER_ID = "mobile_number_provider_id";
 
     private static final String MOBILE_NUMBER_FIELD = "mobile_number";
 
-    @Override
-    public InitiatedActionSupport initiatedActionSupport() {
-        return InitiatedActionSupport.SUPPORTED;
+    private KeycloakSession keycloakSession;
+
+    public MobileNumberRequiredAction(KeycloakSession keycloakSession) {
+        this.keycloakSession = keycloakSession;
     }
 
     @Override
     public void evaluateTriggers(RequiredActionContext context) {
-        // you would implement something like the following, if this required action should be "self registering" at the user
-        // if (context.getUser().getFirstAttribute(MOBILE_NUMBER_FIELD) == null) {
-        // 	context.getUser().addRequiredAction(PROVIDER_ID);
-        //  context.getAuthenticationSession().addRequiredAction(PROVIDER_ID);
-        // }
+
     }
 
     @Override
     public void requiredActionChallenge(RequiredActionContext context) {
-        // show initial form
         context.challenge(createForm(context, null));
+    }
+
+    private Response createForm(RequiredActionContext context, Consumer<LoginFormsProvider> formConsumer) {
+        LoginFormsProvider form = context.form();
+        form.setAttribute("username", context.getUser().getUsername());
+
+        String mobileNumber = context.getUser().getFirstAttribute(MOBILE_NUMBER_FIELD);
+        form.setAttribute(MOBILE_NUMBER_FIELD, mobileNumber == null ? "" : mobileNumber);
+
+        if (formConsumer != null) {
+            formConsumer.accept(form);
+        }
+
+        return form.createForm("my_required_action_template.ftl");
     }
 
     @Override
     public void processAction(RequiredActionContext context) {
-        // submitted form
 
+        // submitted form
         UserModel user = context.getUser();
 
         MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
@@ -60,20 +71,7 @@ public class MobileNumberRequiredAction implements RequiredActionProvider {
 
     @Override
     public void close() {
-    }
 
-    private Response createForm(RequiredActionContext context, Consumer<LoginFormsProvider> formConsumer) {
-        LoginFormsProvider form = context.form();
-        form.setAttribute("username", context.getUser().getUsername());
-
-        String mobileNumber = context.getUser().getFirstAttribute(MOBILE_NUMBER_FIELD);
-        form.setAttribute(MOBILE_NUMBER_FIELD, mobileNumber == null ? "" : mobileNumber);
-
-        if (formConsumer != null) {
-            formConsumer.accept(form);
-        }
-
-        return form.createForm("my_required_action_template.ftl");
     }
 
 }
