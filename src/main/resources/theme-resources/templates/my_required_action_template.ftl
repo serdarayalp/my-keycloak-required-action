@@ -1,38 +1,38 @@
 <#import "template.ftl" as layout>
 
-<@layout.registrationLayout displayMessage=!messagesPerField.existsError('mobile_number'); section>
+<@layout.registrationLayout displayMessage=!messagesPerField.existsError('phone_number'); section>
 
     <#if section = "header">
-        ${msg("updateMobileTitle")}
+        ${msg("updateTelefonnumberTitle")}
     <#elseif section = "form">
 
-        <h2>${msg("updateMobileHello",(username!''))}</h2>
+        <h2>${msg("updateTelefonnumberGreeting",(username!''))}</h2>
 
-        <p>${msg("updateMobileText")}</p>
+        <p>${msg("updateTelefonnumberMessage")}</p>
 
-        <form id="kc-mobile-update-form" class="${properties.kcFormClass!}" action="${url.loginAction}" method="post">
+        <form id="kc-phone-update-form" class="${properties.kcFormClass!}" action="${url.loginAction}" method="post">
 
             <div class="${properties.kcFormGroupClass!}">
                 <div class="${properties.kcLabelWrapperClass!}">
-                    <label for="mobile_number"
+                    <label for="phone_number"
                            class="${properties.kcLabelClass!}">
-                        ${msg("updateMobileFieldLabel")}
+                        ${msg("updateTelefonnumberFieldLabel")}
                     </label>
                 </div>
                 <div class="${properties.kcInputWrapperClass!}">
                     <input type="tel"
-                           id="mobile_number"
-                           name="mobile_number"
+                           id="phone_number"
+                           name="phone_number"
                            class="${properties.kcInputClass!}"
-                           value="${mobile_number}"
+                           value="${phone_number}"
                            required
-                           aria-invalid="<#if messagesPerField.existsError('mobile_number')>true</#if>"/>
+                           aria-invalid="<#if messagesPerField.existsError('phone_number')>true</#if>"/>
 
-                    <#if messagesPerField.existsError('mobile_number')>
-                        <span id="input-error-mobile-number"
+                    <#if messagesPerField.existsError('phone_number')>
+                        <span id="input-error-phone-number"
                               class="${properties.kcInputErrorMessageClass!}"
                               aria-live="polite">
-                            ${kcSanitize(messagesPerField.get('mobile_number'))?no_esc}
+                            ${kcSanitize(messagesPerField.get('phone_number'))?no_esc}
                         </span>
                     </#if>
                 </div>

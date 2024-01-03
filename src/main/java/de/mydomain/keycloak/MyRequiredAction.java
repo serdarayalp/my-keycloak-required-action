@@ -5,23 +5,16 @@ import jakarta.ws.rs.core.Response;
 import org.keycloak.authentication.RequiredActionContext;
 import org.keycloak.authentication.RequiredActionProvider;
 import org.keycloak.forms.login.LoginFormsProvider;
-import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.UserModel;
 
 import java.util.function.Consumer;
 
 
-public class MobileNumberRequiredAction implements RequiredActionProvider {
+public class MyRequiredAction implements RequiredActionProvider {
 
-    public static final String PROVIDER_ID = "mobile_number_provider_id";
+    public static final String PROVIDER_ID = "phone_number_provider_id";
 
-    private static final String MOBILE_NUMBER_FIELD = "mobile_number";
-
-    private KeycloakSession keycloakSession;
-
-    public MobileNumberRequiredAction(KeycloakSession keycloakSession) {
-        this.keycloakSession = keycloakSession;
-    }
+    private static final String PHONE_NUMBER_FIELD = "phone_number";
 
     @Override
     public void evaluateTriggers(RequiredActionContext context) {
@@ -41,8 +34,8 @@ public class MobileNumberRequiredAction implements RequiredActionProvider {
         loginFormsProvider.setAttribute("username", requiredActionContext.getUser().getUsername());
 
         // Wenn die User schon eine Telefonnummer hat, dann sie auch in der Maske entsprechend ausgeben
-        String mobileNumber = requiredActionContext.getUser().getFirstAttribute(MOBILE_NUMBER_FIELD);
-        loginFormsProvider.setAttribute(MOBILE_NUMBER_FIELD, mobileNumber == null ? "" : mobileNumber);
+        String phoneNumber = requiredActionContext.getUser().getFirstAttribute(PHONE_NUMBER_FIELD);
+        loginFormsProvider.setAttribute(PHONE_NUMBER_FIELD, phoneNumber == null ? "" : phoneNumber);
 
         if (formConsumer != null) {
             formConsumer.accept(loginFormsProvider);
@@ -54,19 +47,16 @@ public class MobileNumberRequiredAction implements RequiredActionProvider {
     @Override
     public void processAction(RequiredActionContext context) {
 
-        // submitted form
         UserModel user = context.getUser();
 
         MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
-        String mobileNumber = formData.getFirst(MOBILE_NUMBER_FIELD);
 
-		/*if (Validation.isBlank(mobileNumber) || mobileNumber.length() < 5) {
-			context.challenge(createForm(context, form -> form.addError(new FormMessage(MOBILE_NUMBER_FIELD, "Invalid input"))));
-			return;
-		}*/
+        String phoneNumber = formData.getFirst(PHONE_NUMBER_FIELD);
 
-        user.setSingleAttribute(MOBILE_NUMBER_FIELD, mobileNumber);
+        user.setSingleAttribute(PHONE_NUMBER_FIELD, phoneNumber);
+
         user.removeRequiredAction(PROVIDER_ID);
+
         context.getAuthenticationSession().removeRequiredAction(PROVIDER_ID);
 
         context.success();

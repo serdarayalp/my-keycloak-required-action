@@ -6,21 +6,21 @@ import org.keycloak.authentication.RequiredActionProvider;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 
-public class MobileNumberRequiredActionFactory implements RequiredActionFactory {
+public class MyRequiredActionFactory implements RequiredActionFactory {
 
     @Override
     public String getId() {
-        return MobileNumberRequiredAction.PROVIDER_ID;
+        return MyRequiredAction.PROVIDER_ID;
     }
 
     @Override
     public String getDisplayText() {
-        return "Update Mobile";
+        return "Update Phone Number";
     }
 
     @Override
     public RequiredActionProvider create(KeycloakSession keycloakSession) {
-        return new MobileNumberRequiredAction(keycloakSession);
+        return new MyRequiredAction();
     }
 
     @Override
