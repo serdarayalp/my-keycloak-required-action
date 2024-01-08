@@ -16,11 +16,28 @@ public class MyRequiredAction implements RequiredActionProvider {
 
     private static final String PHONE_NUMBER_FIELD = "phone_number";
 
+    /**
+     * Wird jedes Mal aufgerufen, wenn sich ein Benutzer authentifiziert.
+     * Dabei wird geprüft, ob die erforderliche Aktion ausgelöst werden soll.
+     *
+     * @param context
+     */
     @Override
     public void evaluateTriggers(RequiredActionContext context) {
-
+        /*
+        if (context.getUser().getFirstAttribute(PHONE_NUMBER_FIELD) == null) {
+            context.getUser().addRequiredAction(PROVIDER_ID);
+            context.getAuthenticationSession().addRequiredAction(PROVIDER_ID);
+        }
+        */
     }
 
+    /**
+     * Wenn der Benutzer eine RequiredAction hat, wird diese Methode der erste Aufruf sein,
+     * um zu erfahren, was dem Browser des Benutzers angezeigt werden soll.
+     *
+     * @param requiredActionContext
+     */
     @Override
     public void requiredActionChallenge(RequiredActionContext requiredActionContext) {
         requiredActionContext.challenge(createForm(requiredActionContext, null));
@@ -28,28 +45,34 @@ public class MyRequiredAction implements RequiredActionProvider {
 
     private Response createForm(RequiredActionContext requiredActionContext, Consumer<LoginFormsProvider> formConsumer) {
 
-        LoginFormsProvider loginFormsProvider = requiredActionContext.form();
+        LoginFormsProvider form = requiredActionContext.form();
 
         // für die Ausgabe des Usernames im Formular, z.B. "Hallo Maxmustermann"
-        loginFormsProvider.setAttribute("username", requiredActionContext.getUser().getUsername());
+        form.setAttribute("username", requiredActionContext.getUser().getUsername());
 
-        // Wenn die User schon eine Telefonnummer hat, dann sie auch in der Maske entsprechend ausgeben
+        // Wenn die User schon eine Telefonnummer hat, dann sie ist auch in der Maske entsprechend auszugeben
         String phoneNumber = requiredActionContext.getUser().getFirstAttribute(PHONE_NUMBER_FIELD);
-        loginFormsProvider.setAttribute(PHONE_NUMBER_FIELD, phoneNumber == null ? "" : phoneNumber);
+        form.setAttribute(PHONE_NUMBER_FIELD, phoneNumber == null ? "" : phoneNumber);
 
         if (formConsumer != null) {
-            formConsumer.accept(loginFormsProvider);
+            formConsumer.accept(form);
         }
 
-        return loginFormsProvider.createForm("my_required_action_template.ftl");
+        return form.createForm("my_required_action_template.ftl");
     }
 
+    /**
+     * Wird aufgerufen, wenn eine RequiredAction Formulareingaben hat,
+     * die man verarbeiten möchte.
+     *
+     * @param requiredActionContext
+     */
     @Override
-    public void processAction(RequiredActionContext context) {
+    public void processAction(RequiredActionContext requiredActionContext) {
 
-        UserModel user = context.getUser();
+        UserModel user = requiredActionContext.getUser();
 
-        MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
+        MultivaluedMap<String, String> formData = requiredActionContext.getHttpRequest().getDecodedFormParameters();
 
         String phoneNumber = formData.getFirst(PHONE_NUMBER_FIELD);
 
@@ -57,9 +80,9 @@ public class MyRequiredAction implements RequiredActionProvider {
 
         user.removeRequiredAction(PROVIDER_ID);
 
-        context.getAuthenticationSession().removeRequiredAction(PROVIDER_ID);
+        requiredActionContext.getAuthenticationSession().removeRequiredAction(PROVIDER_ID);
 
-        context.success();
+        requiredActionContext.success();
     }
 
     @Override
